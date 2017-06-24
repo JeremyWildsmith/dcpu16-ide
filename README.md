@@ -1,105 +1,101 @@
-DCPU-16 IDE
+DCPU16-IDE
 ===========
-This project is a Javascript assembler, emulator and debugger for the DCPU-16 processor.  
+This repo is a fork of https://github.com/dangermccann/dcpu16-ide
 
-Assembler
----------
+The project in this repository refactors the dcpu16-ide emulator code to make it more clearly organized and allows for it to be used as a flexible and portable library rather than an independent web application.
 
-The DCPU-16 assembler supports all op codes defined in the DCPU-16 version 1.7 specification.  Basic assembly
-syntax and expressions can be used.
+Essentially, the dcpu16-ide project has been repackaged as a library.
 
-* Use a <code>:</code> to define a label.  Forward labels can be referenced.
-* Use a <code>;</code> to create a comment.
-* Expressions can be used, as long as they evaluate to a numeric literal.  Labels can be used in expressions.
-* The following operators can be used in expressions: +, -, *, /, %, &, |, ^, << and >>.
-* Data blocks can be created with the <code>DAT</code> keywprd.  Data blocks can contain a combination of comma seprated numeric 
-values and strings (surrounded in double quotes).
+License
+=======
 
-To use the assembler include <code>javascript/assembler.js</code>.  The following functions are exposed:
+MIT License
 
-	Assembler.compileSource(source)
-Accepts a string of assembly code and returns a compiled <code>Listing</code> object (see below).
+Example Useage
+===============
 
-	Assembler.compile(tokenizedLines)
-Accepts an array of tokenized lines (an array of arrays of Token objects, one array for each line of assembly) and returns a compiled <code>Listing</code> object (see below).
+```javascript
+import { Emulator } from "./Emulator";
+import { Monitor } from "./Device/Monitor";
+import { Keyboard } from "./Device/Keyboard";
+import { UtilsColor } from "./Utils";
+import { Clock } from "./Device/Clock";
 
-	Tokenizer.tokenize(source)
-Accepts a string of assembly code and returns a <code>TokenizerResult</code> object (see below).
+/**
+ * Setup a canvas where we can draw our LEM Monitor we will be attaching to the DCPU.
+ */
+var canvas = document.createElement("canvas");
+canvas.width = 128;
+canvas.height = 96;
+canvas.style.backgroundColor = "#777777";
+document.body.appendChild(canvas);
 
+var context = canvas.getContext('2d');
 
-### Listing object
-	Listing {
-		ListingLine[] lines // an array of ListingLine objects, one for each line of assembly
-		AssemblyError[] errors // an array of AssemblyError objects
-		
-		byte[] bytecode()	// returns an array of bytes of the entire program
-		String bytecodeText() 	// returns a string representation of the program bytes
-		String htmlFormat()	// returns a formatted HTML representation of the Listing
-	}
+/**
+ * Initialize the emulator.
+ */
+var emulator = new Emulator();
 
-### ListingLine object
-	ListingLine {
-		Integer offset	// the offset of the listing line in the program
-		Token[] tokens	// an array of Token objects for this line of the listing
-		byte[] bytecode	// the compiled output of the line of the listing
-	}
-	
-	
-### TokenizerResult object
-	TokenizerResult {
-		Token[][] lines // an array of arrays of Token objects, one for each line of assembly
-		errors[] // an array of AssemblyError objects
-	}
+//Create a clock device
+var clock = new Clock(emulator);
 
-### Token object
-	Token {
-		String type // the token type (see below for list of types)
-		String lexeme // the value of the token
-	}
+//Create keyboard device.
+var keyboard = new Keyboard(emulator);
 
-### AssemblyError object
-	AssemblyError {
-		String message // a human readable error message
-		Integer line // the line the error occurred on
-	}
+//Setup monitor device. We must provide the constructor a routine which handles rendering to the screen surface.
+var monitor = new Monitor(emulator, (x: number, y: number, width: number, height: number, color: UtilsColor) => {
+    context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+    context.fillRect(x, y, width, height);
+});
 
-The list of token types is as follows:
-* comment
-* hexidecimal
-* decimal
-* string
-* label_def
-* reserved_word
-* command (all op codes)
-* register 
-* label_ref
-* open_bracket
-* close_bracket
-* comma
-* operator
-* space
+//Add devices to the emulator.
+emulator.addDevice(keyboard);
+emulator.addDevice(clock);
+emulator.addDevice(monitor);
 
-Emulator
---------
-TODO
+//Caputre key events and dispatch them to the keyboard device.
+document.body.onkeyup = (event) => {
+    keyboard.keyUp(event);
+};
 
-Debugger
---------
-TODO
-	
+document.body.onkeydown = (event) => {
+    keyboard.keyDown(event);
+};
 
-TODO
-----
-* Support for RESERVE keyword and #defines in assembler
-* better error messages for assembly exceptions
-* load code from POST body
-* set breakpoints in editor
+//Opcodes of a very simple hello world program.
+var testProgram = [0x84c1, 0x86d2, 0x000d, 0x7f81, 0x001a, 0x5801, 0x000d, 0x7c0b
+    , 0xf000, 0x02c1, 0x8000, 0x88c2, 0x8b81, 0x0048, 0x0065, 0x006c
+    , 0x006c, 0x006f, 0x0020, 0x0077, 0x006f, 0x0072, 0x006c, 0x0064
+    , 0x0021, 0x0000, 0xef81];
 
-Thanks
-------
+//Load the program and reset the emulator.
+emulator.reset();
+emulator.load(testProgram);
 
-Special thanks to the following libraries that helped me put this together.  
+/**
+ * The update / render loop. Not super accurate timing, but good enough for a demo.
+ */
+var lastUpdate = Date.now();
 
-* [Ace](https://github.com/ajaxorg/ace)
-* [JQuery-UI](http://jqueryui.com/)
-* [QUnit](http://docs.jquery.com/QUnit)
+var exec = function () {
+    let delta = Date.now() - lastUpdate;
+    lastUpdate += delta;
+
+    for (; delta >= 10; delta -= 10) {
+
+        clock.update(10);
+
+        //Step 10 time per ms = 10khz
+        for (let i = 0; i < 1000; i++)
+            emulator.step();
+        
+    }
+
+    monitor.refresh();
+
+    setTimeout(exec, 100);
+}
+
+exec();
+```
