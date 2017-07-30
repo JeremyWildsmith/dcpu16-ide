@@ -19,8 +19,8 @@ var context = canvas.getContext('2d');
 var emulator = new Emulator_1.Emulator();
 var clock = new Clock_1.Clock(emulator);
 var keyboard = new Keyboard_1.Keyboard(emulator);
-var monitor = new Monitor_1.Monitor(emulator, function (x, y, width, height, color) {
-    context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+var monitor = new Monitor_1.Monitor(emulator, function (x, y, width, height, r, g, b) {
+    context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
     context.fillRect(x, y, width, height);
 });
 emulator.addDevice(keyboard);

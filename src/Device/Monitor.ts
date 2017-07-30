@@ -128,7 +128,7 @@ export class Monitor extends Device {
 
     private drawGlyph(x, y, glyph, fg, bg, blink) {
         var color = Utils.unpackColor16(bg);
-        this.monitorFillRect(x * 4, y * 8, 4, 8, color);
+        this.monitorFillRect(x * 4, y * 8, 4, 8, color.r, color.g, color.b);
 
         if (blink && !this.blinkGlyphsOn)
             return;
@@ -146,7 +146,7 @@ export class Monitor extends Device {
             for (var col = 0; col < 4; col++) {
                 var bit = (cols[col] >> row) & 0x01;
                 if (bit == 1)
-                    this.monitorFillRect((x * 4 + col), (y * 8 + row), 1, 1, color);
+                    this.monitorFillRect((x * 4 + col), (y * 8 + row), 1, 1, color.r, color.g, color.b);
             }
         }
 
@@ -167,7 +167,7 @@ export class Monitor extends Device {
     }
 
     public disconnect() {
-        this.monitorFillRect(0, 0, 128, 96, new UtilsColor(119, 119, 119));
+        this.monitorFillRect(0, 0, 128, 96, 119, 119, 119);
     }
 
     private memMapFont(offset) {
@@ -208,5 +208,5 @@ export class Monitor extends Device {
 }
 
 export interface MonitorFillRect {
-    (x: number, y: number, width: number, height: number, color: UtilsColor);
+    (x: number, y: number, width: number, height: number, r: number, g: number, b: number);
 }

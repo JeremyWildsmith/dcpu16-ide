@@ -21,8 +21,8 @@ var context = canvas.getContext('2d');
 var emulator = new Emulator();
 var clock = new Clock(emulator);
 var keyboard = new Keyboard(emulator);
-var monitor = new Monitor(emulator, (x: number, y: number, width: number, height: number, color: UtilsColor) => {
-    context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+var monitor = new Monitor(emulator, (x: number, y: number, width: number, height: number, r: number, g: number, b: number) => {
+    context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
     context.fillRect(x, y, width, height);
 });
 

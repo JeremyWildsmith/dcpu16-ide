@@ -111,7 +111,7 @@ var Monitor = (function (_super) {
     };
     Monitor.prototype.drawGlyph = function (x, y, glyph, fg, bg, blink) {
         var color = Utils_1.Utils.unpackColor16(bg);
-        this.monitorFillRect(x * 4, y * 8, 4, 8, color);
+        this.monitorFillRect(x * 4, y * 8, 4, 8, color.r, color.g, color.b);
         if (blink && !this.blinkGlyphsOn)
             return;
         color = Utils_1.Utils.unpackColor16(fg);
@@ -125,7 +125,7 @@ var Monitor = (function (_super) {
             for (var col = 0; col < 4; col++) {
                 var bit = (cols[col] >> row) & 0x01;
                 if (bit == 1)
-                    this.monitorFillRect((x * 4 + col), (y * 8 + row), 1, 1, color);
+                    this.monitorFillRect((x * 4 + col), (y * 8 + row), 1, 1, color.r, color.g, color.b);
             }
         }
     };
@@ -142,7 +142,7 @@ var Monitor = (function (_super) {
         }
     };
     Monitor.prototype.disconnect = function () {
-        this.monitorFillRect(0, 0, 128, 96, new Utils_1.UtilsColor(119, 119, 119));
+        this.monitorFillRect(0, 0, 128, 96, 119, 119, 119);
     };
     Monitor.prototype.memMapFont = function (offset) {
         if (offset == 0) {

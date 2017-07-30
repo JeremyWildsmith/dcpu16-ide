@@ -2,7 +2,7 @@
   "compilerOptions": {
     "noEmitOnError": true,
     "noImplicitAny": false,
-    "outDir": "dist",
+    "outDir": "./dist",
     "removeComments": false,
     "sourceMap": true,
     "target": "es5",

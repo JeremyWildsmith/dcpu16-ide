@@ -1,5 +1,4 @@
 import { Device } from "./Device";
-import { UtilsColor } from "../Utils";
 export declare class Monitor extends Device {
     static readonly SCREEN_WIDTH: number;
     static readonly SCREEN_HEIGHT: number;
@@ -25,5 +24,5 @@ export declare class Monitor extends Device {
     private memDumpPalette(offset);
 }
 export interface MonitorFillRect {
-    (x: number, y: number, width: number, height: number, color: UtilsColor): any;
+    (x: number, y: number, width: number, height: number, r: number, g: number, b: number): any;
 }
