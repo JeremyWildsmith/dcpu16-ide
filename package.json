@@ -2,10 +2,11 @@
   "name": "dcpu-emulator",
   "version": "0.0.0",
   "description": "dcpu-emulator",
-  "main": "src/TestApp.ts",
+  "main": "dist/index.js",
   "author": "Jeremy",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "webpack"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
